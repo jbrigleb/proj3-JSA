@@ -38,6 +38,22 @@
 <!-- write any routing code in the Flask application. -->
 <link rel="stylesheet" href="/static/jumble.css" />
 
+<style>
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  .column {
+    float: left;
+    width: 25%;
+    padding: 2px;
+  }
+  
+  
+  
+  </style>
+
 </head>
 
 <body>
@@ -52,16 +68,17 @@
   -- bootstrap may collapse to fewer columns and
   -- more rows if the window is narrow.
   -->
+<div id="words">
 <div class="row">
   {% for word in g.vocab %}
-    <div class="col-xs-2 text-center"> {{ word }} </div>
+    <div class="column"> {{ word }} </div>
     {% if loop.index is divisibleby 3 %}
     </div> <!-- row -->
     <div class="row">
     {% endif %}
   {% endfor %}
 </div> <!-- row -->
-
+</div>
 <br />
 
 <div class="row">
@@ -70,7 +87,7 @@
   </div>
   </div><div class="row">
   <div class="col-xs-6 text-center lead">
-    <strong>{{ session.jumble }}</strong>
+    <strong id="lets">{{ session.jumble }}</strong>
   </div>
   </div><div class="row">
   <div class="col-xs-6 text-center">
@@ -111,7 +128,44 @@ $("#attempt").keyup(function(event) {
    // so ignoring the shift key we get only the upper case letters.
 
    if (! "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(letter)) { return }
+   
+   console.log($("#lets").html());
+   
+   if($("#lets").text().indexOf(String.fromCharCode(event.which).toLowerCase()) == -1){
+        console.log(String.fromCharCode(event.which).toLowerCase()+" not in "+$("#lets").html());
+        var inp = $("#attempt").val();
+        $("#attempt").val( inp.substring(0,inp.length-1) );
+        
+   }
+   
 
+   $("#words").find(".column").each(function(i){
+            var wd = $(this).html();
+            wd = jQuery('<p>' + wd + '</p>').text();
+            var tex = $("#attempt").val();
+            var count = tex.length;
+            
+            if(wd.indexOf(tex) >= 0){
+                //console.log("MATCH "+tex+" and  "+wd);
+                
+                var pre = wd.substring(0,wd.indexOf(tex));
+                var mid = wd.substring(wd.indexOf(tex),wd.indexOf(tex)+tex.length)
+                var end = wd.substring(wd.indexOf(tex)+tex.length, wd.length)
+                console.log(pre+" "+mid+" "+end);
+                
+                $(this).html(pre + mid.fontcolor("green") + end);
+
+            }else{
+                $(this).html(wd.fontcolor("black"));
+            }
+            
+            
+            //$(this).text(wd);
+            
+            
+        });
+
+   
    $.getJSON( "/_check", { text: txt }, 
               function(data) {
                 rsval = data.result.win;
